@@ -1,5 +1,20 @@
 import { useEffect, useState } from "react";
 
+const fruits = [
+  {
+    name: "Bag of grapes",
+    id: "grapes",
+  },
+  {
+    name: "Apples",
+    id: "apple",
+  },
+  {
+    name: "Peaches",
+    id: "peach",
+  },
+];
+
 const useShopState = () => {
   const [purchase, setPurchase] = useState({
     grapes: { amount: 0, totalToPay: 0 },
@@ -15,80 +30,28 @@ const useShopState = () => {
   const [finalValue, setFinalValue] = useState(0);
   const [finalDescounts, setFinalDescounts] = useState(0);
 
-  const addItem = (item: string, action: string, value?: number) => {
-    if (item === "grapes") {
-      if (action === "add") {
-        setPurchase((prevState) => ({
-          ...prevState,
-          grapes: {
-            ...prevState.grapes,
-            amount: value ?? prevState.grapes.amount + 1,
-          },
-        }));
-      } else {
-        setPurchase((prevState) => ({
-          ...prevState,
-          grapes: {
-            ...prevState.grapes,
-            amount:
-              prevState.grapes.amount === 0 || value === 0
-                ? 0
-                : value !== undefined
-                ? value - 1
-                : prevState.grapes.amount - 1,
-          },
-        }));
-      }
-    }
-
-    if (item === "apple") {
-      if (action === "add") {
-        setPurchase((prevState) => ({
-          ...prevState,
-          apple: {
-            ...prevState.apple,
-            amount: value ?? prevState.apple.amount + 1,
-          },
-        }));
-      } else {
-        setPurchase((prevState) => ({
-          ...prevState,
-          apple: {
-            ...prevState.apple,
-            amount:
-              prevState.apple.amount === 0 || value === 0
-                ? 0
-                : value
-                ? value - 1
-                : prevState.apple.amount - 1,
-          },
-        }));
-      }
-    }
-
-    if (item === "peach") {
-      if (action === "add") {
-        setPurchase((prevState) => ({
-          ...prevState,
-          peach: {
-            ...prevState.peach,
-            amount: value ?? prevState.peach.amount + 1,
-          },
-        }));
-      } else {
-        setPurchase((prevState) => ({
-          ...prevState,
-          peach: {
-            ...prevState.peach,
-            amount:
-              prevState.peach.amount === 0 || value === 0
-                ? 0
-                : value
-                ? value - 1
-                : prevState.peach.amount - 1,
-          },
-        }));
-      }
+  const handleItem = (item: string, action: string, value?: number) => {
+    if (action === "add") {
+      setPurchase((prevState: any) => ({
+        ...prevState,
+        [item]: {
+          ...prevState[item],
+          amount: value ?? prevState[item].amount + 1,
+        },
+      }));
+    } else {
+      setPurchase((prevState: any) => ({
+        ...prevState,
+        [item]: {
+          ...prevState[item],
+          amount:
+            prevState[item].amount === 0 || value === 0
+              ? 0
+              : value !== undefined
+              ? value - 1
+              : prevState[item].amount - 1,
+        },
+      }));
     }
   };
 
@@ -141,6 +104,11 @@ const useShopState = () => {
           },
         }));
       } else {
+        setDiscount((prevState) => ({
+          ...prevState,
+          apple: 0,
+        }));
+
         setPurchase((prevState) => ({
           ...prevState,
           apple: {
@@ -184,11 +152,10 @@ const useShopState = () => {
 
   useEffect(() => {
     setFinalValue(
-      purchase.grapes.totalToPay +
-        purchase.apple.totalToPay +
-        purchase.peach.totalToPay -
-        totalDiscount.grapes -
-        totalDiscount.apple
+      purchase.grapes.totalToPay -
+        totalDiscount.grapes +
+        (purchase.apple.totalToPay - totalDiscount.apple) +
+        purchase.peach.totalToPay
     );
 
     setFinalDescounts(totalDiscount.grapes + totalDiscount.apple);
@@ -209,7 +176,8 @@ const useShopState = () => {
     totalDiscount,
     finalValue,
     finalDescounts,
-    addItem,
+    handleItem,
+    fruits,
   };
 };
 
